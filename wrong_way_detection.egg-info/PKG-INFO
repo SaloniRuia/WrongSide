@@ -1,5 +1,0 @@
-Metadata-Version: 2.1
-Name: wrong-way-detection
-Version: 1.1.0
-Summary: GPS + OSM wrong-way driver detection system
-Requires-Python: >=3.9
