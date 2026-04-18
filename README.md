@@ -59,7 +59,11 @@ Wrong-way driving incidents are disproportionately fatal. Traditional detection 
 
 WrongSide tackles each of these through layered, principled engineering decisions documented in full below.
 
----
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.44.59 AM.jpeg" width="90%" />
+</p>
+
+
 
 ## 2. System Overview
 
@@ -126,6 +130,10 @@ WrongSide/
 
 **Dependency-injected configuration.** All 30+ tuning parameters are collected into `DetectorConfig`, `ResolverConfig`, and `SimulatorConfig` dataclasses and injected at construction time. No global mutable state; all parameters overridable per-instance.
 
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.00 AM (1).jpeg" width="90%" />
+</p>
+
 ---
 
 ## 4. Detection Pipeline
@@ -145,6 +153,8 @@ When ≥ 3 trajectory positions are available, a recency-weighted linear model i
 
 #### Heading Confidence Ramp
 A scalar weight in [0, 1] is computed as a linear ramp from 0 (at 5 km/h) to 1 (at 15 km/h). At low speeds, GPS position deltas are below the noise floor; headings are effectively random. This confidence value gates downstream risk contributions—low-speed pings with unreliable heading cannot accumulate a high risk score independently.
+
+
 
 ```
 heading_confidence(v) =
@@ -171,6 +181,10 @@ score(road) = 0.6 × heading_alignment + 0.4 × proximity_score
 A single Overpass fetch is cached for 600 s (configurable). The Overpass API is a free public service with a ~1 req/s rate limit; per-ping API calls at 1 Hz would immediately trigger 429 throttling and inflate detection latency by network RTT on every ping. The 600 s TTL is a documented engineering trade-off, not an oversight.
 
 Three Overpass mirror endpoints are tried with exponential backoff (4 retries each), providing resilience against public API instability during demos.
+
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.00 AM.jpeg" width="90%" />
+</p>
 
 ### 4.3 Triple-Gate Confirmation Model
 
@@ -205,6 +219,10 @@ At 120 km/h, a 20° GPS heading error is noise; the same error at 5 km/h is almo
 #### Manoeuvre Hold Suppression
 When a vehicle is below 12 km/h and heading deviation exceeds 70% of the adaptive threshold, alerts are suppressed for 4 seconds. This prevents legal U-turns and three-point turns from being flagged. A motorway U-turn exceeds this window by design—correctly identifying it as a wrong-way event.
 
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.01 AM (1).jpeg" width="90%" />
+</p>
+
 ### 4.4 Novelty Features (N4–N6)
 
 #### [N4] Bayesian Road Conflict Scorer
@@ -216,6 +234,10 @@ log_odds(t) = log_odds(t-1) + log(LR_ww)   if delta > threshold
 log_odds(t) = log_odds(t-1) + log(LR_ok)   if delta < threshold
 posterior(t) = sigmoid(log_odds(t))
 ```
+
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.01 AM (2).jpeg" width="90%" />
+</p>
 
 Log-odds are clamped to **[-6, +6]** (corresponding to [0.0025, 0.9975]), preventing the system from reaching dead certainty that cannot be reversed by future evidence.
 
@@ -236,6 +258,10 @@ The flat-earth approximation is used deliberately: at 120 km/h over 5 s (~167 m)
 
 The ghost position is displayed as a 👻 marker with a dashed trajectory line, enabling proactive downstream response: smart-signal preemption, barrier activation, or alert broadcasting to other road users before the collision zone is reached.
 
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.01 AM.jpeg" width="90%" />
+</p>
+
 #### [N6] Counter-Flow Heatmap
 
 A spatial grid (cell size: ~33 m × 33 m) accumulates wrong-way events with time-based decay:
@@ -247,6 +273,10 @@ cell_score(t) = cell_score(t₀) × decay_rate^(t - t₀)
 Decay is applied per second (not per ping), making it GPS-frequency-independent—a vehicle at 0.5 Hz does not decay cells twice as fast as one at 1 Hz.
 
 Cells above a configurable threshold are flagged as **infrastructure hotspots**: junctions with confusing signage, roads where barriers are missing, or segments frequently used as wrong-way shortcuts. This lifts the system from per-incident reactive alerting to infrastructure-level trend analysis, enabling targeted physical intervention by road operators.
+
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.02 AM (1).jpeg" width="90%" />
+</p>
 
 ---
 
@@ -273,6 +303,8 @@ The simulator generates synthetic multi-vehicle GPS traces with realistic noise:
 | `TURNING_VEHICLE` | Makes a legal three-point turn at a junction | True Negative (tests manoeuvre suppression) |
 
 The `TURNING_VEHICLE` role is critical for validation: it briefly presents a wrong-way heading during the reversal phase. Without it, the manoeuvre hold suppression logic is never exercised in evaluation. (This role was defined but never instantiated in v2; corrected in v3.)
+
+
 
 ---
 
@@ -304,6 +336,10 @@ Treats each GPS ping as one observation. Directly measures operational safety pr
 | `jitter_fn_rate` | Miss rate on timestamp-jittered pings |
 
 For a safety-critical system, latency and coverage matter at least as much as eventual recall. Frame-level evaluation is the operationally meaningful metric.
+
+<p align="center">
+  <img src="assets/WhatsApp Image 2026-04-19 at 2.45.02 AM.jpeg" width="90%" />
+</p>
 
 ---
 
