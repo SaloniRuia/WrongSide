@@ -14,6 +14,14 @@
 
 </div>
 
+<p align="center">
+  <img src="assets/wrong_way_annotated_1776463872-ezgif.com-speed.gif" width="700"/>
+</p>
+
+<p align="center">
+  <em>Figure: Real-time detection of wrong-way intruder using heading–road mismatch.</em>
+</p>
+
 ---
 
 ## Table of Contents
