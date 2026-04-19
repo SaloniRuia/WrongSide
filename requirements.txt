@@ -1,0 +1,15 @@
+# Harman Wrong-Way Detection System - Dependencies
+# All packages are FREE and open-source. No paid API keys required.
+# OSM Overpass API is free (rate-limited to ~1 req/sec, handled by cache)
+
+folium>=0.15.0          # Interactive map visualization
+requests>=2.31.0        # HTTP client for Overpass API
+numpy>=1.24.0           # Numerical computing (Kalman filter, noise)
+pandas>=2.0.0           # Data manipulation for trace analysis
+scipy>=1.11.0           # Signal processing utilities
+simpy>=4.1.0            # Optional: event-driven simulation
+overpy>=0.7             # OSM Overpass API Python client
+osmnx>=1.6.0            # OpenStreetMap network analysis
+shapely>=2.0.0          # Geometric operations
+geopy>=2.4.0            # Geodesic distance calculations
+python-dotenv>=1.0.0    # Load environment variables from .env
